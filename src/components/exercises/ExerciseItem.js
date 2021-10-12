@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Link } from 'react-router-dom'
 
 const ExerciseItem = ({
   exercise,
@@ -39,6 +40,7 @@ const ExerciseItem = ({
       <div className="actions">
         <h4>{exercise.title}</h4>
         <div className="buttons">
+          <Link to={`/exercises/${exercise.id}/edit`}>Edit</Link>
           <button type="button" onClick={performExerciseDeletion}>
             Delete
           </button>
