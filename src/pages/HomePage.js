@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react'
 import ExercisesList from '../components/exercises/ExercisesList'
+import BaseFilter from '../components/exercises/BaseFilter'
 
 const HomePage = () => {
   const [exercises, setExercises] = useState([])
+  const [currentFilter, setCurrentFilter] = useState('all')
 
   useEffect(() => {
     async function fetchExercises() {
       try {
         const response = await fetch('http://localhost:3111/exercises')
         const json = await response.json()
-        console.log('exercises', json)
         setExercises(json)
       } catch (error) {
         console.error(error)
@@ -17,6 +18,10 @@ const HomePage = () => {
     }
     fetchExercises()
   }, [])
+
+  const handleUpdateFilter = (filter) => {
+    setCurrentFilter(filter)
+  }
 
   const handleDeleteExercise = (id) => {
     const patchedExercises = exercises.filter((exercise) => exercise.id !== id)
@@ -32,13 +37,38 @@ const HomePage = () => {
     setExercises(patchedExercises)
   }
 
-  return (
-    <div>
+  let jsxExercisesList = (
+    <ExercisesList
+      exercises={exercises}
+      onDeleteExercise={handleDeleteExercise}
+      onToggleExerciseCompletion={handleToggleExerciseCompletion}
+    />
+  )
+
+  if (currentFilter === 'completed')
+    jsxExercisesList = (
       <ExercisesList
-        exercises={exercises}
+        exercises={exercises.filter((exercise) => exercise.complete)}
         onDeleteExercise={handleDeleteExercise}
         onToggleExerciseCompletion={handleToggleExerciseCompletion}
       />
+    )
+  else if (currentFilter === 'pending')
+    jsxExercisesList = (
+      <ExercisesList
+        exercises={exercises.filter((exercise) => !exercise.complete)}
+        onDeleteExercise={handleDeleteExercise}
+        onToggleExerciseCompletion={handleToggleExerciseCompletion}
+      />
+    )
+
+  return (
+    <div>
+      <BaseFilter
+        onUpdateFilterExercises={handleUpdateFilter}
+        current={currentFilter}
+      />
+      {jsxExercisesList}
     </div>
   )
 }
