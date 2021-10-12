@@ -43,7 +43,7 @@ const CreateExercise = () => {
           type="text"
           name="title"
           onChange={handleChange}
-          value={exercise.title}
+          defaultValue={exercise.title}
           required
           maxLength="15"
         />
@@ -57,10 +57,9 @@ const CreateExercise = () => {
           rows="10"
           name="detail"
           onChange={handleChange}
+          defaultValue={exercise.detail}
           required
-        >
-          {exercise.detail}
-        </textarea>
+        />
       </label>
 
       <button type="submit">Add Exercise</button>
