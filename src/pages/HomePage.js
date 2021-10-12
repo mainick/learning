@@ -30,16 +30,6 @@ const HomePage = () => {
       return exercise
     })
     setExercises(patchedExercises)
-    /*
-    const clonedExercises = exercises
-    const clickedExerciseIdx = clonedExercises.findIndex(
-      (exercise) => exercise.id === id
-    )
-    const clickedExercise = clonedExercises[clickedExerciseIdx]
-    clickedExercise.complete = !clickedExercise.complete
-    clonedExercises[clickedExerciseIdx] = clickedExercise
-    setExercises(clonedExercises)
-     */
   }
 
   return (
