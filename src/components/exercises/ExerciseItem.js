@@ -1,7 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-const ExerciseItem = ({ exercise, onDeleteExercise }) => {
+const ExerciseItem = ({
+  exercise,
+  onDeleteExercise,
+  onToggleExerciseCompletion,
+}) => {
   const performExerciseDeletion = () => {
     fetch(`http://localhost:3111/exercises/${exercise.id}`, {
       method: 'DELETE',
@@ -13,13 +17,33 @@ const ExerciseItem = ({ exercise, onDeleteExercise }) => {
         console.log(error)
       })
   }
+
+  const performExerciseToggle = () => {
+    fetch(`http://localhost:3111/exercises/${exercise.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ complete: !exercise.complete }),
+    })
+      .then(() => {
+        onToggleExerciseCompletion(exercise.id)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  const classesExercise = ['exercise']
+  if (exercise.complete) classesExercise.push('complete')
   return (
-    <div className="exercise">
+    <div className={classesExercise.join(' ')}>
       <div className="actions">
         <h4>{exercise.title}</h4>
         <div className="buttons">
           <button type="button" onClick={performExerciseDeletion}>
             Delete
+          </button>
+          <button type="button" onClick={performExerciseToggle}>
+            Toggle
           </button>
         </div>
       </div>
@@ -38,6 +62,7 @@ ExerciseItem.propTypes = {
     complete: PropTypes.bool.isRequired,
   }).isRequired,
   onDeleteExercise: PropTypes.func.isRequired,
+  onToggleExerciseCompletion: PropTypes.func.isRequired,
 }
 
 export default ExerciseItem

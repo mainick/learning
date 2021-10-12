@@ -23,11 +23,31 @@ const HomePage = () => {
     setExercises(patchedExercises)
   }
 
+  const handleToggleExerciseCompletion = (id) => {
+    const patchedExercises = exercises.map((exercise) => {
+      // eslint-disable-next-line no-param-reassign
+      if (exercise.id === id) exercise.complete = !exercise.complete
+      return exercise
+    })
+    setExercises(patchedExercises)
+    /*
+    const clonedExercises = exercises
+    const clickedExerciseIdx = clonedExercises.findIndex(
+      (exercise) => exercise.id === id
+    )
+    const clickedExercise = clonedExercises[clickedExerciseIdx]
+    clickedExercise.complete = !clickedExercise.complete
+    clonedExercises[clickedExerciseIdx] = clickedExercise
+    setExercises(clonedExercises)
+     */
+  }
+
   return (
     <div>
       <ExercisesList
         exercises={exercises}
         onDeleteExercise={handleDeleteExercise}
+        onToggleExerciseCompletion={handleToggleExerciseCompletion}
       />
     </div>
   )
