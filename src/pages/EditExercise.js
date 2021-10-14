@@ -8,18 +8,23 @@ const EditExercise = () => {
   const exerciseId = params.id
 
   useEffect(() => {
-    fetch(`http://localhost:3111/exercises/${exerciseId}`, {
-      method: 'GET',
-      headers: { Accept: 'application/json' },
-    })
-      .then((resp) => {
-        if (!resp.ok) throw new Error()
-        return resp.json()
-      })
-      .then((data) => {
-        setExercise(data)
-      })
-      .catch((error) => console.log(error))
+    const fetchExercise = async () => {
+      try {
+        const resp = await fetch(
+          `http://localhost:3111/exercises/${exerciseId}`,
+          {
+            method: 'GET',
+            headers: { Accept: 'application/json' },
+          }
+        )
+        if (!resp.ok) throw new Error('Exercise not found')
+        const json = await resp.json()
+        setExercise(json)
+      } catch (error) {
+        console.error('error', error)
+      }
+    }
+    fetchExercise()
   }, [exerciseId])
 
   const handleChange = (e) => {

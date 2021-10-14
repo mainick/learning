@@ -7,13 +7,13 @@ const HomePage = () => {
   const [currentFilter, setCurrentFilter] = useState('all')
 
   useEffect(() => {
-    async function fetchExercises() {
+    const fetchExercises = async () => {
       try {
         const response = await fetch('http://localhost:3111/exercises')
         const json = await response.json()
         setExercises(json)
       } catch (error) {
-        console.error(error)
+        console.error('error', error)
       }
     }
     fetchExercises()
