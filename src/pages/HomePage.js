@@ -1,23 +1,16 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
+import useFetchExercises from '../hooks/useFetchExercises'
 
 const HomePage = () => {
   const [exercises, setExercises] = useState([])
   const [currentFilter, setCurrentFilter] = useState('all')
+  const [isLoading, isError, dataExercises] = useFetchExercises()
 
   useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const response = await fetch('http://localhost:3111/exercises')
-        const json = await response.json()
-        setExercises(json)
-      } catch (error) {
-        console.error('error', error)
-      }
-    }
-    fetchExercises()
-  }, [])
+    if (dataExercises.length > 0) setExercises(dataExercises)
+  }, [dataExercises])
 
   const handleUpdateFilter = (filter) => {
     setCurrentFilter(filter)
@@ -37,39 +30,45 @@ const HomePage = () => {
     setExercises(patchedExercises)
   }
 
-  let jsxExercisesList = (
-    <ExercisesList
-      exercises={exercises}
-      onDeleteExercise={handleDeleteExercise}
-      onToggleExerciseCompletion={handleToggleExerciseCompletion}
-    />
-  )
+  let jsxExercisesList = <div>loading data ...</div>
+  if (!isLoading) {
+    jsxExercisesList = (
+      <ExercisesList
+        exercises={exercises}
+        onDeleteExercise={handleDeleteExercise}
+        onToggleExerciseCompletion={handleToggleExerciseCompletion}
+      />
+    )
 
-  if (currentFilter === 'completed')
-    jsxExercisesList = (
-      <ExercisesList
-        exercises={exercises.filter((exercise) => exercise.complete)}
-        onDeleteExercise={handleDeleteExercise}
-        onToggleExerciseCompletion={handleToggleExerciseCompletion}
-      />
-    )
-  else if (currentFilter === 'pending')
-    jsxExercisesList = (
-      <ExercisesList
-        exercises={exercises.filter((exercise) => !exercise.complete)}
-        onDeleteExercise={handleDeleteExercise}
-        onToggleExerciseCompletion={handleToggleExerciseCompletion}
-      />
-    )
+    if (currentFilter === 'completed')
+      jsxExercisesList = (
+        <ExercisesList
+          exercises={exercises.filter((exercise) => exercise.complete)}
+          onDeleteExercise={handleDeleteExercise}
+          onToggleExerciseCompletion={handleToggleExerciseCompletion}
+        />
+      )
+    else if (currentFilter === 'pending')
+      jsxExercisesList = (
+        <ExercisesList
+          exercises={exercises.filter((exercise) => !exercise.complete)}
+          onDeleteExercise={handleDeleteExercise}
+          onToggleExerciseCompletion={handleToggleExerciseCompletion}
+        />
+      )
+  }
 
   return (
-    <div>
-      <BaseFilter
-        onUpdateFilterExercises={handleUpdateFilter}
-        current={currentFilter}
-      />
-      {jsxExercisesList}
-    </div>
+    <>
+      {isError && <div>Something went wrong...</div>}
+      <div>
+        <BaseFilter
+          onUpdateFilterExercises={handleUpdateFilter}
+          current={currentFilter}
+        />
+        {jsxExercisesList}
+      </div>
+    </>
   )
 }
 
