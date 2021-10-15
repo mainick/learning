@@ -1,18 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import ExerciseContext from '../../contexts/ExerciseContext'
 
-const ExerciseItem = ({
-  exercise,
-  onDeleteExercise,
-  onToggleExerciseCompletion,
-}) => {
+const ExerciseItem = ({ exercise }) => {
+  const dispatchExercise = useContext(ExerciseContext)
+
   const performExerciseDeletion = () => {
     fetch(`http://localhost:3111/exercises/${exercise.id}`, {
       method: 'DELETE',
     })
       .then(() => {
-        onDeleteExercise(exercise.id)
+        dispatchExercise({ type: 'DELETE', payload: exercise.id })
       })
       .catch((error) => {
         console.log(error)
@@ -26,7 +25,7 @@ const ExerciseItem = ({
       body: JSON.stringify({ complete: !exercise.complete }),
     })
       .then(() => {
-        onToggleExerciseCompletion(exercise.id)
+        dispatchExercise({ type: 'CHANGE_STATUS', payload: exercise.id })
       })
       .catch((error) => {
         console.log(error)
@@ -63,8 +62,6 @@ ExerciseItem.propTypes = {
     detail: PropTypes.string.isRequired,
     complete: PropTypes.bool.isRequired,
   }).isRequired,
-  onDeleteExercise: PropTypes.func.isRequired,
-  onToggleExerciseCompletion: PropTypes.func.isRequired,
 }
 
 export default ExerciseItem

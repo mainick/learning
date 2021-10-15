@@ -2,23 +2,8 @@ import React, { useState, useEffect, useReducer } from 'react'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
 import useFetchExercises from '../hooks/useFetchExercises'
-
-const exerciseReducer = (state, action) => {
-  switch (action.type) {
-    case 'RETRIEVE':
-      return action.payload
-    case 'DELETE':
-      return state.filter((exercise) => exercise.id !== action.payload)
-    case 'CHANGE_STATUS':
-      return state.map((exercise) => {
-        if (exercise.id === action.payload)
-          return { ...exercise, complete: !exercise.complete }
-        return exercise
-      })
-    default:
-      throw new Error('no matching action type')
-  }
-}
+import exerciseReducer from '../reducers/ExerciseReducer'
+import ExerciseContext from '../contexts/ExerciseContext'
 
 const HomePage = () => {
   const [exercises, dispatchExercise] = useReducer(exerciseReducer, [])
@@ -34,14 +19,6 @@ const HomePage = () => {
     setCurrentFilter(filter)
   }
 
-  const handleDeleteExercise = (id) => {
-    dispatchExercise({ type: 'DELETE', payload: id })
-  }
-
-  const handleToggleExerciseCompletion = (id) => {
-    dispatchExercise({ type: 'CHANGE_STATUS', payload: id })
-  }
-
   const filterExercises = exercises.filter((exercise) => {
     let result = false
     if (currentFilter === 'all') result = true
@@ -51,7 +28,7 @@ const HomePage = () => {
   })
 
   return (
-    <>
+    <ExerciseContext.Provider value={dispatchExercise}>
       {isError && <div>Something went wrong...</div>}
       <div>
         {isLoading ? (
@@ -62,15 +39,11 @@ const HomePage = () => {
               onUpdateFilterExercises={handleUpdateFilter}
               current={currentFilter}
             />
-            <ExercisesList
-              exercises={filterExercises}
-              onDeleteExercise={handleDeleteExercise}
-              onToggleExerciseCompletion={handleToggleExerciseCompletion}
-            />
+            <ExercisesList exercises={filterExercises} />
           </>
         )}
       </div>
-    </>
+    </ExerciseContext.Provider>
   )
 }
 
