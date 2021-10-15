@@ -1,15 +1,33 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
 import useFetchExercises from '../hooks/useFetchExercises'
 
+const exerciseReducer = (state, action) => {
+  switch (action.type) {
+    case 'RETRIEVE':
+      return action.payload
+    case 'DELETE':
+      return state.filter((exercise) => exercise.id !== action.payload)
+    case 'CHANGE_STATUS':
+      return state.map((exercise) => {
+        if (exercise.id === action.payload)
+          return { ...exercise, complete: !exercise.complete }
+        return exercise
+      })
+    default:
+      throw new Error('no matching action type')
+  }
+}
+
 const HomePage = () => {
-  const [exercises, setExercises] = useState([])
+  const [exercises, dispatchExercise] = useReducer(exerciseReducer, [])
   const [currentFilter, setCurrentFilter] = useState('all')
   const [isLoading, isError, dataExercises] = useFetchExercises()
 
   useEffect(() => {
-    if (dataExercises.length > 0) setExercises(dataExercises)
+    if (dataExercises.length > 0)
+      dispatchExercise({ type: 'RETRIEVE', payload: dataExercises })
   }, [dataExercises])
 
   const handleUpdateFilter = (filter) => {
@@ -17,17 +35,11 @@ const HomePage = () => {
   }
 
   const handleDeleteExercise = (id) => {
-    const patchedExercises = exercises.filter((exercise) => exercise.id !== id)
-    setExercises(patchedExercises)
+    dispatchExercise({ type: 'DELETE', payload: id })
   }
 
   const handleToggleExerciseCompletion = (id) => {
-    const patchedExercises = exercises.map((exercise) => {
-      // eslint-disable-next-line no-param-reassign
-      if (exercise.id === id) exercise.complete = !exercise.complete
-      return exercise
-    })
-    setExercises(patchedExercises)
+    dispatchExercise({ type: 'CHANGE_STATUS', payload: id })
   }
 
   const filterExercises = exercises.filter((exercise) => {
