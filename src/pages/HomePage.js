@@ -30,43 +30,33 @@ const HomePage = () => {
     setExercises(patchedExercises)
   }
 
-  let jsxExercisesList = <div>loading data ...</div>
-  if (!isLoading) {
-    jsxExercisesList = (
-      <ExercisesList
-        exercises={exercises}
-        onDeleteExercise={handleDeleteExercise}
-        onToggleExerciseCompletion={handleToggleExerciseCompletion}
-      />
-    )
-
-    if (currentFilter === 'completed')
-      jsxExercisesList = (
-        <ExercisesList
-          exercises={exercises.filter((exercise) => exercise.complete)}
-          onDeleteExercise={handleDeleteExercise}
-          onToggleExerciseCompletion={handleToggleExerciseCompletion}
-        />
-      )
-    else if (currentFilter === 'pending')
-      jsxExercisesList = (
-        <ExercisesList
-          exercises={exercises.filter((exercise) => !exercise.complete)}
-          onDeleteExercise={handleDeleteExercise}
-          onToggleExerciseCompletion={handleToggleExerciseCompletion}
-        />
-      )
-  }
+  const filterExercises = exercises.filter((exercise) => {
+    let result = false
+    if (currentFilter === 'all') result = true
+    if (currentFilter === 'completed' && exercise.complete) result = true
+    if (currentFilter === 'pending' && !exercise.complete) result = true
+    return result
+  })
 
   return (
     <>
       {isError && <div>Something went wrong...</div>}
       <div>
-        <BaseFilter
-          onUpdateFilterExercises={handleUpdateFilter}
-          current={currentFilter}
-        />
-        {jsxExercisesList}
+        {isLoading ? (
+          <div>loading data ...</div>
+        ) : (
+          <>
+            <BaseFilter
+              onUpdateFilterExercises={handleUpdateFilter}
+              current={currentFilter}
+            />
+            <ExercisesList
+              exercises={filterExercises}
+              onDeleteExercise={handleDeleteExercise}
+              onToggleExerciseCompletion={handleToggleExerciseCompletion}
+            />
+          </>
+        )}
       </div>
     </>
   )
