@@ -1,10 +1,12 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import { useErrorHandler } from 'react-error-boundary'
 import ExerciseContext from '../../contexts/ExerciseContext'
 
 const ExerciseItem = ({ exercise }) => {
   const dispatchExercise = useContext(ExerciseContext)
+  const handleError = useErrorHandler()
 
   const performExerciseDeletion = () => {
     fetch(`http://localhost:3111/exercises/${exercise.id}`, {
@@ -14,7 +16,7 @@ const ExerciseItem = ({ exercise }) => {
         dispatchExercise({ type: 'DELETE', payload: exercise.id })
       })
       .catch((error) => {
-        console.log(error)
+        handleError(error)
       })
   }
 
@@ -28,7 +30,7 @@ const ExerciseItem = ({ exercise }) => {
         dispatchExercise({ type: 'CHANGE_STATUS', payload: exercise.id })
       })
       .catch((error) => {
-        console.log(error)
+        handleError(error)
       })
   }
 

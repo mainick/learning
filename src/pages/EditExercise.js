@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
+import { useErrorHandler } from 'react-error-boundary'
 import useFetchExercise from '../hooks/useFetchExercise'
 
 const EditExercise = () => {
   const [exercise, setExercise] = useState({})
+  const handleError = useErrorHandler()
   const history = useHistory()
   const params = useParams()
   const exerciseId = params.id
@@ -29,7 +31,7 @@ const EditExercise = () => {
         console.log(resp.status)
         history.push('/home')
       })
-      .catch((error) => console.log(error))
+      .catch((error) => handleError(error))
   }
 
   return (
