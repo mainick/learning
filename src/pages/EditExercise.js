@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
 import useFetchExercise from '../hooks/useFetchExercise'
 
 const EditExercise = () => {
+  const isComponentMounted = useRef(true)
   const [exercise, setExercise] = useState({})
   const handleError = useErrorHandler()
   const history = useHistory()
   const params = useParams()
   const exerciseId = params.id
-  const [isLoading, isError, dataExercise] = useFetchExercise(exerciseId)
+  const [isLoading, isError, dataExercise] = useFetchExercise(
+    isComponentMounted,
+    exerciseId
+  )
 
   useEffect(() => {
     if (dataExercise) setExercise(dataExercise)

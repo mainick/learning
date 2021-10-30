@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer, useRef } from 'react'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
 import useFetchExercises from '../hooks/useFetchExercises'
@@ -6,9 +6,12 @@ import exerciseReducer from '../reducers/ExerciseReducer'
 import ExerciseContext from '../contexts/ExerciseContext'
 
 const HomePage = () => {
+  const isComponentMounted = useRef(true)
   const [exercises, dispatchExercise] = useReducer(exerciseReducer, [])
   const [currentFilter, setCurrentFilter] = useState('all')
-  const [isLoading, isError, dataExercises] = useFetchExercises()
+  const [isLoading, isError, dataExercises] = useFetchExercises(
+    isComponentMounted
+  )
 
   useEffect(() => {
     if (dataExercises.length > 0)

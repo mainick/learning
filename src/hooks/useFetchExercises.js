@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const UseFetchExercises = () => {
+const UseFetchExercises = (componentRef) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [data, setData] = useState([])
@@ -12,18 +12,23 @@ const UseFetchExercises = () => {
     setIsLoading(true)
     try {
       const response = await fetch(url)
-      const json = await response.json()
-      setData((prev) => [...prev, ...json])
+      const jsonData = await response.json()
+      setData((prev) => [...prev, ...jsonData])
     } catch (error) {
       setIsError(true)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   useEffect(() => {
-    if (!url) return
-    fetchExercises()
-  }, [url])
+    if (!url) return undefined
+    if (componentRef.current) fetchExercises()
+    return () => {
+      // eslint-disable-next-line no-param-reassign
+      componentRef.current = false
+    }
+  }, [url, componentRef])
 
   return [isLoading, isError, data]
 }

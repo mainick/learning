@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const UseFetchExercise = (exerciseId) => {
+const UseFetchExercise = (componentRef, exerciseId) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [data, setData] = useState({})
@@ -15,17 +15,23 @@ const UseFetchExercise = (exerciseId) => {
         headers: { Accept: 'application/json' },
       })
       if (!resp.ok) throw new Error('Exercise not found')
-      const json = await resp.json()
-      setData((prev) => ({ ...prev, ...json }))
+      const jsonData = await resp.json()
+      setData((prev) => ({ ...prev, ...jsonData }))
     } catch (error) {
       setIsError(true)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   useEffect(() => {
-    fetchExercise()
-  }, [url])
+    if (!url) return undefined
+    if (componentRef) fetchExercise()
+    return () => {
+      // eslint-disable-next-line no-param-reassign
+      componentRef.current = false
+    }
+  }, [url, componentRef])
 
   return [isLoading, isError, data]
 }
