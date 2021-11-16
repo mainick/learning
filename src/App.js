@@ -1,3 +1,4 @@
+import React, { Suspense } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import CreateExercise from './pages/CreateExercise'
@@ -9,7 +10,9 @@ const App = () => (
     <NavBar />
     <Switch>
       <Route path="/home" exact>
-        <HomePage />
+        <Suspense fallback={<div>Loading...</div>}>
+          <HomePage />
+        </Suspense>
       </Route>
       <Route path="/create-exercise" exact>
         <CreateExercise />

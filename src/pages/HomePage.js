@@ -1,56 +1,31 @@
-import React, { useEffect, useReducer, useRef } from 'react'
-import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
+import React from 'react'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
-import useFetchExercises from '../hooks/useFetchExercises'
-import exerciseReducer from '../reducers/ExerciseReducer'
-import ExerciseContext from '../contexts/ExerciseContext'
-
-const exerciseTypeFilterAtom = atom({
-  key: 'currentFilter',
-  default: 'all',
-})
-
-const filteredExercisesList = selectorFamily({
-  key: 'filteredExercisesListState',
-  get: (exerciseList) => ({ get }) => {
-    const currentFilter = get(exerciseTypeFilterAtom)
-    switch (currentFilter) {
-      case 'completed':
-        return exerciseList.filter((exercise) => exercise.complete)
-      case 'pending':
-        return exerciseList.filter((exercise) => !exercise.complete)
-      default:
-        return exerciseList
-    }
-  },
-})
+import {
+  exerciseTypeFilterState,
+  filteredExercisesList,
+  exercisesListState,
+} from '../store/ExerciseStore'
 
 const HomePage = () => {
-  const isComponentMounted = useRef(true)
   const [currentFilter, setCurrentFilter] = useRecoilState(
-    exerciseTypeFilterAtom
+    exerciseTypeFilterState
   )
-  const [exercises, dispatchExercise] = useReducer(exerciseReducer, [])
-  const [isLoading, isError, dataExercises] = useFetchExercises(
-    isComponentMounted
+  const dataExercises = useRecoilValueLoadable(exercisesListState)
+  const filteredExercises = useRecoilValue(
+    filteredExercisesList(dataExercises.contents)
   )
-  const filteredExercises = useRecoilValue(filteredExercisesList(exercises))
-
-  useEffect(() => {
-    if (dataExercises.length > 0)
-      dispatchExercise({ type: 'RETRIEVE', payload: dataExercises })
-  }, [dataExercises])
 
   const handleUpdateFilter = (filter) => {
     setCurrentFilter(filter)
   }
 
   return (
-    <ExerciseContext.Provider value={dispatchExercise}>
-      {isError && <div>Something went wrong...</div>}
+    <>
+      {dataExercises.state === 'hasError' && <div>Something went wrong...</div>}
       <div>
-        {isLoading ? (
+        {dataExercises.state === 'loading' ? (
           <div>loading data ...</div>
         ) : (
           <>
@@ -62,7 +37,7 @@ const HomePage = () => {
           </>
         )}
       </div>
-    </ExerciseContext.Provider>
+    </>
   )
 }
 
