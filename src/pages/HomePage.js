@@ -1,17 +1,41 @@
-import React, { useState, useEffect, useReducer, useRef } from 'react'
+import React, { useEffect, useReducer, useRef } from 'react'
+import { atom, selectorFamily, useRecoilState, useRecoilValue } from 'recoil'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
 import useFetchExercises from '../hooks/useFetchExercises'
 import exerciseReducer from '../reducers/ExerciseReducer'
 import ExerciseContext from '../contexts/ExerciseContext'
 
+const exerciseTypeFilterAtom = atom({
+  key: 'currentFilter',
+  default: 'all',
+})
+
+const filteredExercisesList = selectorFamily({
+  key: 'filteredExercisesListState',
+  get: (exerciseList) => ({ get }) => {
+    const currentFilter = get(exerciseTypeFilterAtom)
+    switch (currentFilter) {
+      case 'completed':
+        return exerciseList.filter((exercise) => exercise.complete)
+      case 'pending':
+        return exerciseList.filter((exercise) => !exercise.complete)
+      default:
+        return exerciseList
+    }
+  },
+})
+
 const HomePage = () => {
   const isComponentMounted = useRef(true)
+  const [currentFilter, setCurrentFilter] = useRecoilState(
+    exerciseTypeFilterAtom
+  )
   const [exercises, dispatchExercise] = useReducer(exerciseReducer, [])
-  const [currentFilter, setCurrentFilter] = useState('all')
   const [isLoading, isError, dataExercises] = useFetchExercises(
     isComponentMounted
   )
+  const filteredExercises = useRecoilValue(filteredExercisesList(exercises))
 
   useEffect(() => {
     if (dataExercises.length > 0)
@@ -21,14 +45,6 @@ const HomePage = () => {
   const handleUpdateFilter = (filter) => {
     setCurrentFilter(filter)
   }
-
-  const filterExercises = exercises.filter((exercise) => {
-    let result = false
-    if (currentFilter === 'all') result = true
-    if (currentFilter === 'completed' && exercise.complete) result = true
-    if (currentFilter === 'pending' && !exercise.complete) result = true
-    return result
-  })
 
   return (
     <ExerciseContext.Provider value={dispatchExercise}>
@@ -42,7 +58,7 @@ const HomePage = () => {
               onUpdateFilterExercises={handleUpdateFilter}
               current={currentFilter}
             />
-            <ExercisesList exercises={filterExercises} />
+            <ExercisesList exercises={filteredExercises} />
           </>
         )}
       </div>
