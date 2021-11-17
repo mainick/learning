@@ -1,5 +1,5 @@
 import { atom, selector, selectorFamily } from 'recoil'
-import getExercises from '../services/ExerciseApi'
+import { getExercises } from '../services/ExerciseApi'
 
 export const exerciseTypeFilterState = atom({
   key: 'currentFilter',

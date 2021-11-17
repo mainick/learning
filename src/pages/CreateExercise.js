@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
+import { useRecoilStateLoadable } from 'recoil'
+import { exercisesListState } from '../store/ExerciseStore'
+import { createExercise } from '../services/ExerciseApi'
 
 const initialExercise = {
   title: '',
@@ -9,6 +12,9 @@ const initialExercise = {
 }
 
 const CreateExercise = () => {
+  const [dataExercises, setExercisesList] = useRecoilStateLoadable(
+    exercisesListState
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [exercise, setExercise] = useState(initialExercise)
@@ -26,20 +32,21 @@ const CreateExercise = () => {
     setIsLoading(true)
 
     const newExercise = {
+      ...exercise,
       id: Math.floor(Math.random() * 10000),
-      title: exercise.title,
-      detail: exercise.detail,
       complete: false,
     }
-    fetch(`http://localhost:3111/exercises`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newExercise),
-    })
-      .then((resp) => {
+    createExercise(newExercise)
+      .then((success) => {
         setIsLoading(false)
-        if (resp.ok) history.push('/home')
-        else setIsError(true)
+        if (success) {
+          const newExercisesList = dataExercises.contents.map((item) => item)
+          newExercisesList.push(newExercise)
+          setExercisesList(newExercisesList)
+          history.push('/home')
+        } else {
+          setIsError(true)
+        }
       })
       .catch((error) => {
         setIsLoading(false)

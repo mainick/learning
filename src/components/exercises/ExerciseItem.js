@@ -1,37 +1,41 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
+import { useRecoilStateLoadable } from 'recoil'
 import { useErrorHandler } from 'react-error-boundary'
-import ExerciseContext from '../../contexts/ExerciseContext'
+import { toggleExercise, deleteExercise } from '../../services/ExerciseApi'
+import { exercisesListState } from '../../store/ExerciseStore'
 
 const ExerciseItem = ({ exercise }) => {
-  const dispatchExercise = useContext(ExerciseContext)
   const handleError = useErrorHandler()
+  const history = useHistory()
+  const [dataExercises, setExercisesList] = useRecoilStateLoadable(
+    exercisesListState
+  )
 
   const performExerciseDeletion = () => {
-    fetch(`http://localhost:3111/exercises/${exercise.id}`, {
-      method: 'DELETE',
-    })
+    deleteExercise(exercise.id)
       .then(() => {
-        dispatchExercise({ type: 'DELETE', payload: exercise.id })
+        const newExercisesList = dataExercises.contents.filter(
+          (item) => item.id !== exercise.id
+        )
+        setExercisesList(newExercisesList)
+        history.push('/home')
       })
-      .catch((error) => {
-        handleError(error)
-      })
+      .catch((error) => handleError(error))
   }
 
   const performExerciseToggle = () => {
-    fetch(`http://localhost:3111/exercises/${exercise.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ complete: !exercise.complete }),
-    })
+    toggleExercise(exercise)
       .then(() => {
-        dispatchExercise({ type: 'CHANGE_STATUS', payload: exercise.id })
+        const newExercisesList = dataExercises.contents.map((item) => {
+          if (item.id === exercise.id)
+            return { ...item, complete: !item.complete }
+          return item
+        })
+        setExercisesList(newExercisesList)
       })
-      .catch((error) => {
-        handleError(error)
-      })
+      .catch((error) => handleError(error))
   }
 
   const classesExercise = ['exercise']
