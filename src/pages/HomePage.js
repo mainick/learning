@@ -1,21 +1,25 @@
 import React from 'react'
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
 import {
   exerciseTypeFilterState,
   filteredExercisesList,
-  exercisesListState,
 } from '../store/ExerciseStore'
+import UseFetchExercises from '../hooks/useFetchExercises'
 
 const HomePage = () => {
   const [currentFilter, setCurrentFilter] = useRecoilState(
     exerciseTypeFilterState
   )
-  const dataExercises = useRecoilValueLoadable(exercisesListState)
-  const filteredExercises = useRecoilValue(
-    filteredExercisesList(dataExercises.contents)
-  )
+  const {
+    isLoading,
+    isError,
+    data: dataExercises,
+    error,
+    isFetching,
+  } = UseFetchExercises()
+  const filteredExercises = useRecoilValue(filteredExercisesList(dataExercises))
 
   const handleUpdateFilter = (filter) => {
     setCurrentFilter(filter)
@@ -23,12 +27,13 @@ const HomePage = () => {
 
   return (
     <>
-      {dataExercises.state === 'hasError' && <div>Something went wrong...</div>}
+      {isError && <div>Something went wrong...${error}</div>}
       <div>
-        {dataExercises.state === 'loading' ? (
+        {isLoading ? (
           <div>loading data ...</div>
         ) : (
           <>
+            {isFetching && <div>Refreshing...</div>}
             <BaseFilter
               onUpdateFilterExercises={handleUpdateFilter}
               current={currentFilter}

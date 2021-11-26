@@ -1,7 +1,8 @@
-export async function getExercises() {
+export async function getExercises(signal) {
   const url = 'http://localhost:3111/exercises'
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, { signal })
+    if (!response.ok) throw new Error(`Network response was not ok`)
     return (await response.json()) || []
   } catch (e) {
     throw new Error(`Error retrieve exercises (${url}): ${e.message}`)

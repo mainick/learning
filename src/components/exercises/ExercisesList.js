@@ -24,7 +24,7 @@ const ExercisesList = ({ exercises }) => {
   const handleReset = () => {
     console.log('RESET ERROR')
   }
-  if (exercises.length === 0) return null
+  if (exercises && exercises.length === 0) return null
   return (
     <div className="exercises-list">
       {exercises.map((exercise) => (
