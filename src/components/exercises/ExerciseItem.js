@@ -1,25 +1,19 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link, useHistory } from 'react-router-dom'
-import { useRecoilStateLoadable } from 'recoil'
 import { useErrorHandler } from 'react-error-boundary'
+import { useQueryClient } from 'react-query'
 import { toggleExercise, deleteExercise } from '../../services/ExerciseApi'
-import { exercisesListState } from '../../store/ExerciseStore'
 
 const ExerciseItem = ({ exercise }) => {
   const handleError = useErrorHandler()
   const history = useHistory()
-  const [dataExercises, setExercisesList] = useRecoilStateLoadable(
-    exercisesListState
-  )
+  const queryClient = useQueryClient()
 
   const performExerciseDeletion = () => {
     deleteExercise(exercise.id)
       .then(() => {
-        const newExercisesList = dataExercises.contents.filter(
-          (item) => item.id !== exercise.id
-        )
-        setExercisesList(newExercisesList)
+        queryClient.invalidateQueries('exercisesList', { exact: true })
         history.push('/home')
       })
       .catch((error) => handleError(error))
@@ -28,12 +22,7 @@ const ExerciseItem = ({ exercise }) => {
   const performExerciseToggle = () => {
     toggleExercise(exercise)
       .then(() => {
-        const newExercisesList = dataExercises.contents.map((item) => {
-          if (item.id === exercise.id)
-            return { ...item, complete: !item.complete }
-          return item
-        })
-        setExercisesList(newExercisesList)
+        queryClient.invalidateQueries('exercisesList', { exact: true })
       })
       .catch((error) => handleError(error))
   }

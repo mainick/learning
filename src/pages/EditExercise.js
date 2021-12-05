@@ -1,18 +1,37 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
+import { useMutation, useQueryClient } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
 import useFetchExercise from '../hooks/useFetchExercise'
+import { editExercise } from '../services/ExerciseApi'
 
 const EditExercise = () => {
-  const isComponentMounted = useRef(true)
   const [exercise, setExercise] = useState({})
   const handleError = useErrorHandler()
   const history = useHistory()
+  const queryClient = useQueryClient()
   const params = useParams()
   const exerciseId = params.id
-  const [isLoading, isError, dataExercise] = useFetchExercise(
-    isComponentMounted,
-    exerciseId
+  const {
+    isLoading,
+    isError,
+    data: dataExercise,
+    error,
+    isFetching,
+  } = useFetchExercise(exerciseId)
+
+  const mutationExerciseUpdate = useMutation(
+    (newExercise) => editExercise(exerciseId, newExercise),
+    {
+      onSuccess: (status, data) => {
+        queryClient.invalidateQueries('exercisesList', { exact: true })
+        queryClient.invalidateQueries(['exercise', data.id], { exact: true })
+      },
+      onError: (exc) => {
+        handleError(exc)
+      },
+    }
   )
 
   useEffect(() => {
@@ -26,53 +45,52 @@ const EditExercise = () => {
 
   const handleExerciseUpdation = (e) => {
     e.preventDefault()
-    fetch(`http://localhost:3111/exercises/${exercise.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(exercise),
-    })
-      .then((resp) => {
-        console.log(resp.status)
+    mutationExerciseUpdate.mutate(exercise, {
+      onSuccess: () => {
         history.push('/home')
-      })
-      .catch((error) => handleError(error))
+      },
+    })
   }
 
   return (
     <>
-      {isError && <div>Something went wrong...</div>}
+      {isError && <div>Something went wrong......${error}</div>}
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <form onSubmit={handleExerciseUpdation}>
-          <label htmlFor="title">
-            Title
-            <input
-              type="text"
-              name="title"
-              onChange={handleChange}
-              defaultValue={exercise.title}
-              required
-              maxLength="15"
-            />
-          </label>
+        <>
+          {isFetching && <div>Refreshing...</div>}
+          <form onSubmit={handleExerciseUpdation}>
+            <label htmlFor="title">
+              Title
+              <input
+                type="text"
+                name="title"
+                onChange={handleChange}
+                defaultValue={exercise.title}
+                required
+                maxLength="15"
+              />
+            </label>
 
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="detail2">
-            Detail
-            <textarea
-              cols="30"
-              rows="10"
-              name="detail"
-              onChange={handleChange}
-              defaultValue={exercise.detail}
-              required
-            />
-          </label>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="detail2">
+              Detail
+              <textarea
+                cols="30"
+                rows="10"
+                name="detail"
+                onChange={handleChange}
+                defaultValue={exercise.detail}
+                required
+              />
+            </label>
 
-          <button type="submit">Update Exercise</button>
-        </form>
+            <button type="submit">Update Exercise</button>
+          </form>
+        </>
       )}
+      <ReactQueryDevtools initialIsOpen />
     </>
   )
 }

@@ -9,6 +9,21 @@ export async function getExercises(signal) {
   }
 }
 
+export async function getExerciseById(signal, id) {
+  const url = `http://localhost:3111/exercises/${id}`
+  try {
+    const response = await fetch(url, {
+      signal,
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+    if (!response.ok) throw new Error('Network response was not ok')
+    return (await response.json()) || {}
+  } catch (e) {
+    throw new Error(`Error retrieve exercise (${url}): ${e.message}`)
+  }
+}
+
 export async function createExercise(exercise) {
   const url = 'http://localhost:3111/exercises/'
   try {
@@ -20,6 +35,20 @@ export async function createExercise(exercise) {
     return response.ok
   } catch (e) {
     throw new Error(`Error create exercise (${url}: ${e.message}`)
+  }
+}
+
+export async function editExercise(id, exercise) {
+  const url = `http://localhost:3111/exercises/${id}`
+  try {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exercise),
+    })
+    return response.ok
+  } catch (e) {
+    throw new Error(`Error update exercise (${url}: ${e.message}`)
   }
 }
 

@@ -1,39 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useQuery } from 'react-query'
+import { getExerciseById } from '../services/ExerciseApi'
 
-const UseFetchExercise = (componentRef, exerciseId) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isError, setIsError] = useState(false)
-  const [data, setData] = useState({})
-
-  const url = `http://localhost:3111/exercises/${exerciseId}`
-  const fetchExercise = async () => {
-    setIsError(false)
-    setIsLoading(true)
-    try {
-      const resp = await fetch(url, {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      })
-      if (!resp.ok) throw new Error('Exercise not found')
-      const jsonData = await resp.json()
-      setData((prev) => ({ ...prev, ...jsonData }))
-    } catch (error) {
-      setIsError(true)
-    } finally {
-      setIsLoading(false)
+const useFetchExercise = (exerciseId) => {
+  const { isLoading, isError, data, error, isFetching } = useQuery(
+    ['exercise', exerciseId],
+    async ({ signal }) => getExerciseById(signal, exerciseId),
+    {
+      useErrorBoundary: (errorResp) => errorResp.response?.status >= 500,
     }
-  }
+  )
 
-  useEffect(() => {
-    if (!url) return undefined
-    if (componentRef) fetchExercise()
-    return () => {
-      // eslint-disable-next-line no-param-reassign
-      componentRef.current = false
-    }
-  }, [url, componentRef])
-
-  return [isLoading, isError, data]
+  return { isLoading, isError, data, error, isFetching }
 }
 
-export default UseFetchExercise
+export default useFetchExercise
