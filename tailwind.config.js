@@ -1,5 +1,6 @@
 module.exports = {
-  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  mode: 'jit',
+  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/**/*.html'],
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {},
@@ -7,5 +8,14 @@ module.exports = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  // eslint-disable-next-line global-require
+  plugins: [require('daisyui')],
+  daisyui: {
+    styled: true,
+    themes: ['cupcake', 'dark'],
+    base: true,
+    utils: true,
+    logs: true,
+    rtl: false,
+  },
 }
