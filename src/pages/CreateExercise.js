@@ -2,7 +2,10 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
 import { useMutation, useQueryClient } from 'react-query'
+import { v4 as uuidv4 } from 'uuid'
+import { toast } from 'react-toastify'
 import { createExercise } from '../services/ExerciseApi'
+import 'react-toastify/dist/ReactToastify.min.css'
 
 const initialExercise = {
   title: '',
@@ -24,10 +27,25 @@ const CreateExercise = () => {
   const mutationExerciseCreation = useMutation(
     (newExercise) => createExercise(newExercise),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('exercisesList', { exact: true })
+      onSuccess: (status, data) => {
+        if (status) {
+          toast(`Exercise ${data.id} created correctly`, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: 'colored',
+            pauseOnFocusLoss: true,
+            type: toast.TYPE.SUCCESS,
+            toastId: `exercise_${data.id}`,
+          })
+          queryClient.invalidateQueries('exercisesList', { exact: true })
+        }
       },
       onError: (error) => {
+        toast(error, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.ERROR,
+        })
         handleError(error)
       },
     }
@@ -38,13 +56,11 @@ const CreateExercise = () => {
 
     const newExercise = {
       ...exercise,
-      id: Math.floor(Math.random() * 10000),
+      id: uuidv4(),
       complete: false,
     }
     mutationExerciseCreation.mutate(newExercise, {
-      onSuccess: () => {
-        history.push('/home')
-      },
+      onSuccess: () => history.push('/home'),
     })
   }
 
@@ -57,34 +73,45 @@ const CreateExercise = () => {
       {mutationExerciseCreation.isLoading ? (
         <div>Loading...</div>
       ) : (
-        <form onSubmit={handleExerciseCreation}>
-          <label htmlFor="title">
-            Title
-            <input
-              type="text"
-              name="title"
-              onChange={handleChange}
-              defaultValue={exercise.title}
-              required
-              maxLength="15"
-            />
-          </label>
+        <div className="card p-10 bg-base-200">
+          <form onSubmit={handleExerciseCreation}>
+            <div className="form-control">
+              <label className="label" htmlFor="title">
+                <span className="label-text">Title</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                onChange={handleChange}
+                defaultValue={exercise.title}
+                required
+                maxLength="15"
+                placeholder="Title"
+                className="input input-bordered"
+              />
+            </div>
 
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="detail2">
-            Detail
-            <textarea
-              cols="30"
-              rows="10"
-              name="detail"
-              onChange={handleChange}
-              defaultValue={exercise.detail}
-              required
-            />
-          </label>
+            <div className="form-control">
+              <label className="label" htmlFor="detail2">
+                <span className="label-text">Detail</span>
+              </label>
+              <textarea
+                cols="30"
+                rows="10"
+                name="detail"
+                onChange={handleChange}
+                defaultValue={exercise.detail}
+                required
+                placeholder="Detail"
+                className="textarea h-24 textarea-bordered"
+              />
+            </div>
 
-          <button type="submit">Add Exercise</button>
-        </form>
+            <button type="submit" className="btn btn-primary">
+              Add Exercise
+            </button>
+          </form>
+        </div>
       )}
     </>
   )

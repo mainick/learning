@@ -2,29 +2,35 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const BaseFilter = ({ onUpdateFilterExercises, current }) => (
-  <nav className="filter-nav">
-    <button
-      type="button"
+  <div className="btn-group flex justify-center my-5">
+    <div
+      className={`btn btn-outline btn-sm ${
+        current === 'all' ? 'btn-active' : ''
+      }`}
       onClick={() => onUpdateFilterExercises('all')}
-      className={current === 'all' ? 'active' : ''}
+      aria-hidden="true"
     >
       View All
-    </button>
-    <button
-      type="button"
+    </div>
+    <div
+      className={`btn btn-outline btn-sm ${
+        current === 'completed' ? 'btn-active' : ''
+      }`}
       onClick={() => onUpdateFilterExercises('completed')}
-      className={current === 'completed' ? 'active' : ''}
+      aria-hidden="true"
     >
       Completed
-    </button>
-    <button
-      type="button"
+    </div>
+    <div
+      className={`btn btn-outline btn-sm ${
+        current === 'pending' ? 'btn-active' : ''
+      }`}
       onClick={() => onUpdateFilterExercises('pending')}
-      className={current === 'pending' ? 'active' : ''}
+      aria-hidden="true"
     >
       Pending
-    </button>
-  </nav>
+    </div>
+  </div>
 )
 
 BaseFilter.propTypes = {

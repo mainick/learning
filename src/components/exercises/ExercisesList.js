@@ -4,7 +4,7 @@ import ExerciseItem from './ExerciseItem'
 const ExercisesList = ({ exercises }) => {
   if (exercises && exercises.length === 0) return null
   return (
-    <div className="exercises-list">
+    <div className="grid grid-cols-1 gap-6">
       {exercises.map((exercise) => (
         <ExerciseItem key={exercise.id} exercise={exercise} />
       ))}

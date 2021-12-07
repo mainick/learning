@@ -2,7 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Link, useHistory } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
-import { useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
+import { toast } from 'react-toastify'
 import { toggleExercise, deleteExercise } from '../../services/ExerciseApi'
 
 const ExerciseItem = ({ exercise }) => {
@@ -10,41 +11,94 @@ const ExerciseItem = ({ exercise }) => {
   const history = useHistory()
   const queryClient = useQueryClient()
 
-  const performExerciseDeletion = () => {
-    deleteExercise(exercise.id)
-      .then(() => {
-        queryClient.invalidateQueries('exercisesList', { exact: true })
-        history.push('/home')
-      })
-      .catch((error) => handleError(error))
-  }
+  const mutationExerciseDeletion = useMutation(
+    (exerciseId) => deleteExercise(exerciseId),
+    {
+      onSuccess: (status, deletedId) => {
+        if (status) {
+          toast(`Exercise deleted correctly`, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: 'colored',
+            pauseOnFocusLoss: true,
+            type: toast.TYPE.SUCCESS,
+            toastId: `exercise_${deletedId}`,
+          })
+          queryClient.invalidateQueries('exercisesList', { exact: true })
+          queryClient.invalidateQueries(['exercise', deletedId], {
+            exact: true,
+          })
+        }
+      },
+      onError: (exc) => {
+        toast(exc, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.ERROR,
+        })
+        handleError(exc)
+      },
+    }
+  )
 
-  const performExerciseToggle = () => {
-    toggleExercise(exercise)
-      .then(() => {
+  const mutationExerciseToggle = useMutation(() => toggleExercise(exercise), {
+    onSuccess: (status, data) => {
+      if (status) {
+        toast(`Exercise ${data.id}  toggled correctly`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.SUCCESS,
+          toastId: `exercise_${data.id}`,
+        })
         queryClient.invalidateQueries('exercisesList', { exact: true })
-      })
-      .catch((error) => handleError(error))
-  }
+        queryClient.invalidateQueries(['exercise', data.id], {
+          exact: true,
+        })
+      }
+    },
+    onError: (exc) => {
+      handleError(exc)
+    },
+  })
 
-  const classesExercise = ['exercise']
-  if (exercise.complete) classesExercise.push('complete')
   return (
-    <div className={classesExercise.join(' ')}>
-      <div className="actions">
-        <h4>{exercise.title}</h4>
-        <div className="buttons">
-          <Link to={`/exercises/${exercise.id}/edit`}>Edit</Link>
-          <button type="button" onClick={performExerciseDeletion}>
+    <div className="card lg:card-side bordered bg-gray-200">
+      <div className="card-body">
+        <h2 className="card-title">{exercise.title}</h2>
+        <p>{exercise.detail}</p>
+        <div className="card-actions">
+          <Link
+            to={`/exercises/${exercise.id}/edit`}
+            className="btn btn-primary btn-sm"
+          >
+            Edit
+          </Link>
+          <button
+            type="button"
+            className={`btn btn-error btn-sm ${
+              mutationExerciseDeletion.isLoading && 'loading'
+            }`}
+            onClick={() => {
+              mutationExerciseDeletion.mutate(exercise.id, {
+                onSuccess: () => {
+                  history.push('/home')
+                },
+              })
+            }}
+          >
             Delete
           </button>
-          <button type="button" onClick={performExerciseToggle}>
+          <button
+            type="button"
+            className={`btn btn-secondary btn-sm ${
+              mutationExerciseToggle.isLoading && 'loading'
+            }`}
+            onClick={() => mutationExerciseToggle.mutate(exercise)}
+          >
             Toggle
           </button>
         </div>
-      </div>
-      <div className="details">
-        <p>{exercise.detail}</p>
       </div>
     </div>
   )

@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom'
 import { QueryClient, QueryCache, QueryClientProvider } from 'react-query'
 import { ErrorBoundary } from 'react-error-boundary'
 import PropTypes from 'prop-types'
+import { toast, ToastContainer } from 'react-toastify'
 import HomePage from './pages/HomePage'
 import CreateExercise from './pages/CreateExercise'
 import NavBar from './components/layout/NavBar'
@@ -15,7 +16,13 @@ const queryClient = new QueryClient({
       // 🎉 only show error if we already have data in the cache
       // which indicates a failed background update
       if (query.state.data !== undefined) {
-        alert(`Something went wrong: ${error.message}`)
+        toast(`Something went wrong: ${error.message}`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.WARNING,
+          toastId: `err_query_cache`,
+        })
       }
     },
   }),
@@ -51,7 +58,7 @@ const handleReset = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <div className="App">
+    <div className="container mx-auto">
       <NavBar />
       <Switch>
         <Route path="/home" exact>
@@ -68,10 +75,18 @@ const App = () => (
           <CreateExercise />
         </Route>
         <Route path="/exercises/:id/edit" exact>
-          <EditExercise />
+          <ErrorBoundary
+            FallbackComponent={ErrorFallback}
+            onReset={handleReset}
+          >
+            <Suspense fallback={<div>loading...</div>}>
+              <EditExercise />
+            </Suspense>
+          </ErrorBoundary>
         </Route>
       </Switch>
     </div>
+    <ToastContainer closeOnClick={false} closeButton />
   </QueryClientProvider>
 )
 

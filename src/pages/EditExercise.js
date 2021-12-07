@@ -3,6 +3,7 @@ import { useHistory, useParams } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
 import { useMutation, useQueryClient } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
+import { toast } from 'react-toastify'
 import useFetchExercise from '../hooks/useFetchExercise'
 import { editExercise } from '../services/ExerciseApi'
 
@@ -25,10 +26,25 @@ const EditExercise = () => {
     (newExercise) => editExercise(exerciseId, newExercise),
     {
       onSuccess: (status, data) => {
-        queryClient.invalidateQueries('exercisesList', { exact: true })
-        queryClient.invalidateQueries(['exercise', data.id], { exact: true })
+        if (status) {
+          toast(`Exercise updated correctly`, {
+            position: toast.POSITION.TOP_RIGHT,
+            theme: 'colored',
+            pauseOnFocusLoss: true,
+            type: toast.TYPE.SUCCESS,
+            toastId: `exercise_${data.id}`,
+          })
+          queryClient.invalidateQueries('exercisesList', { exact: true })
+          queryClient.invalidateQueries(['exercise', data.id], { exact: true })
+        }
       },
       onError: (exc) => {
+        toast(exc, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.ERROR,
+        })
         handleError(exc)
       },
     }
@@ -46,9 +62,7 @@ const EditExercise = () => {
   const handleExerciseUpdation = (e) => {
     e.preventDefault()
     mutationExerciseUpdate.mutate(exercise, {
-      onSuccess: () => {
-        history.push('/home')
-      },
+      onSuccess: () => history.push('/home'),
     })
   }
 
@@ -58,11 +72,13 @@ const EditExercise = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <>
+        <div className="card p-10 bg-base-200">
           {isFetching && <div>Refreshing...</div>}
           <form onSubmit={handleExerciseUpdation}>
-            <label htmlFor="title">
-              Title
+            <div className="form-control">
+              <label className="label" htmlFor="title">
+                <span className="label-text">Title</span>
+              </label>
               <input
                 type="text"
                 name="title"
@@ -70,12 +86,15 @@ const EditExercise = () => {
                 defaultValue={exercise.title}
                 required
                 maxLength="15"
+                placeholder="Title"
+                className="input input-bordered"
               />
-            </label>
+            </div>
 
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label htmlFor="detail2">
-              Detail
+            <div className="form-control">
+              <label className="label" htmlFor="detail2">
+                <span className="label-text">Detail</span>
+              </label>
               <textarea
                 cols="30"
                 rows="10"
@@ -83,12 +102,16 @@ const EditExercise = () => {
                 onChange={handleChange}
                 defaultValue={exercise.detail}
                 required
+                placeholder="Detail"
+                className="textarea h-24 textarea-bordered"
               />
-            </label>
+            </div>
 
-            <button type="submit">Update Exercise</button>
+            <button type="submit" className="btn btn-primary">
+              Update Exercise
+            </button>
           </form>
-        </>
+        </div>
       )}
       <ReactQueryDevtools initialIsOpen />
     </>
