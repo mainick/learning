@@ -4,7 +4,11 @@ import { Link, useHistory } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-toastify'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 import { toggleExercise, deleteExercise } from '../../services/ExerciseApi'
+
+const SwalDeleteExercise = withReactContent(Swal)
 
 const ExerciseItem = ({ exercise }) => {
   const handleError = useErrorHandler()
@@ -16,6 +20,7 @@ const ExerciseItem = ({ exercise }) => {
     {
       onSuccess: (status, deletedId) => {
         if (status) {
+          /*
           toast(`Exercise deleted correctly`, {
             position: toast.POSITION.TOP_RIGHT,
             theme: 'colored',
@@ -23,6 +28,12 @@ const ExerciseItem = ({ exercise }) => {
             type: toast.TYPE.SUCCESS,
             toastId: `exercise_${deletedId}`,
           })
+          */
+          SwalDeleteExercise.fire(
+            'Deleted!',
+            'Exercise deleted correctly',
+            'success'
+          )
           queryClient.invalidateQueries('exercisesList', { exact: true })
           queryClient.invalidateQueries(['exercise', deletedId], {
             exact: true,
@@ -40,6 +51,28 @@ const ExerciseItem = ({ exercise }) => {
       },
     }
   )
+
+  const performExerciseDeletion = () => {
+    SwalDeleteExercise.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'btn btn-error',
+        cancelButton: 'btn btn-ghost',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        mutationExerciseDeletion.mutate(exercise.id, {
+          onSuccess: () => {
+            history.push('/home')
+          },
+        })
+      }
+    })
+  }
 
   const mutationExerciseToggle = useMutation(() => toggleExercise(exercise), {
     onSuccess: (status, data) => {
@@ -63,10 +96,10 @@ const ExerciseItem = ({ exercise }) => {
   })
 
   return (
-    <div className="card lg:card-side bordered bg-gray-200">
+    <div className="card lg:card-side bordered bg-gray-200 shadow-lg">
       <div className="card-body">
         <h2 className="card-title">{exercise.title}</h2>
-        <p>{exercise.detail}</p>
+        <p className="break-all">{exercise.detail}</p>
         <div className="card-actions">
           <Link
             to={`/exercises/${exercise.id}/edit`}
@@ -79,13 +112,7 @@ const ExerciseItem = ({ exercise }) => {
             className={`btn btn-error btn-sm ${
               mutationExerciseDeletion.isLoading && 'loading'
             }`}
-            onClick={() => {
-              mutationExerciseDeletion.mutate(exercise.id, {
-                onSuccess: () => {
-                  history.push('/home')
-                },
-              })
-            }}
+            onClick={performExerciseDeletion}
           >
             Delete
           </button>

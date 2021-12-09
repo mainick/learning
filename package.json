@@ -18,11 +18,15 @@
     "react-scripts": "4.0.3",
     "react-toastify": "^8.1.0",
     "recoil": "^0.4.1",
+    "sweetalert2": "^11.3.0",
+    "sweetalert2-react-content": "^4.2.0",
     "uuid": "^8.3.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
+    "prestart": "sed -i 's/enabled: true/enabled: false/' tailwind.config.js",
     "start": "craco start",
+    "prebuild": "sed -i 's/enabled: false/enabled: true/' tailwind.config.js",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",

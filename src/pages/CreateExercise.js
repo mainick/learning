@@ -73,7 +73,7 @@ const CreateExercise = () => {
       {mutationExerciseCreation.isLoading ? (
         <div>Loading...</div>
       ) : (
-        <div className="card p-10 bg-base-200">
+        <div className="card p-10 my-10 bg-gray-200 shadow-lg">
           <form onSubmit={handleExerciseCreation}>
             <div className="form-control">
               <label className="label" htmlFor="title">
@@ -103,13 +103,15 @@ const CreateExercise = () => {
                 defaultValue={exercise.detail}
                 required
                 placeholder="Detail"
-                className="textarea h-24 textarea-bordered"
+                className="textarea h-36 textarea-bordered resize-y"
               />
             </div>
 
-            <button type="submit" className="btn btn-primary">
-              Add Exercise
-            </button>
+            <div className="my-5 grid grid-flow-row">
+              <button type="submit" className="btn btn-primary">
+                Add Exercise
+              </button>
+            </div>
           </form>
         </div>
       )}
