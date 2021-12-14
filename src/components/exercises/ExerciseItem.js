@@ -132,8 +132,8 @@ const ExerciseItem = ({ exercise }) => {
 }
 
 ExerciseItem.propTypes = {
-  exercise: PropTypes.objectOf({
-    id: PropTypes.number.isRequired,
+  exercise: PropTypes.exact({
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     title: PropTypes.string.isRequired,
     detail: PropTypes.string.isRequired,
     complete: PropTypes.bool.isRequired,
