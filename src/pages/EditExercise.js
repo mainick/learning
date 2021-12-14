@@ -107,9 +107,11 @@ const EditExercise = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary">
-              Update Exercise
-            </button>
+            <div className="my-5 grid grid-flow-row">
+              <button type="submit" className="btn btn-primary">
+                Update Exercise
+              </button>
+            </div>
           </form>
         </div>
       )}
