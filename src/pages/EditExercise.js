@@ -72,7 +72,7 @@ const EditExercise = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <div className="card p-10 bg-base-200">
+        <div className="card p-10 my-10 bg-gray-200 shadow-lg">
           {isFetching && <div>Refreshing...</div>}
           <form onSubmit={handleExerciseUpdation}>
             <div className="form-control">
