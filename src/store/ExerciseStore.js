@@ -29,9 +29,9 @@ const allExercisesState = selector({
       const response = await getExercises()
       return response || []
     } catch (e) {
-      console.error(
-        `Error allExercisesState -> getExercises() ERROR: ${e.message}`
-      )
+      // console.error(
+      //  `Error allExercisesState -> getExercises() ERROR: ${e.message}`
+      // )
       return []
     }
   },
