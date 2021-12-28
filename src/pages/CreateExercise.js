@@ -25,32 +25,35 @@ const CreateExercise = () => {
     setExercise({ ...exercise, [name]: value })
   }
 
-  const mutationExerciseCreation = useMutation(
-    (newExercise) => createExercise(newExercise),
-    {
-      onSuccess: (dataNew) => {
-        if (dataNew) {
-          toast(`Exercise ${dataNew.id} created correctly`, {
-            position: toast.POSITION.TOP_RIGHT,
-            theme: 'colored',
-            pauseOnFocusLoss: true,
-            type: toast.TYPE.SUCCESS,
-            toastId: `exercise_${dataNew.id}`,
-          })
-          queryClient.invalidateQueries(exerciseKeys.lists())
-        }
-      },
-      onError: (error) => {
-        toast(error, {
+  const {
+    mutate: mutateCreatedExercise,
+    isError,
+    error,
+    isSuccess,
+    isLoading,
+  } = useMutation((newExercise) => createExercise(newExercise), {
+    onSuccess: (dataNew) => {
+      if (dataNew) {
+        toast(`Exercise ${dataNew.id} created correctly`, {
           position: toast.POSITION.TOP_RIGHT,
           theme: 'colored',
           pauseOnFocusLoss: true,
-          type: toast.TYPE.ERROR,
+          type: toast.TYPE.SUCCESS,
+          toastId: `exercise_${dataNew.id}`,
         })
-        handleError(error)
-      },
-    }
-  )
+        queryClient.invalidateQueries(exerciseKeys.lists())
+      }
+    },
+    onError: (exc) => {
+      toast(exc, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: 'colored',
+        pauseOnFocusLoss: true,
+        type: toast.TYPE.ERROR,
+      })
+      handleError(exc)
+    },
+  })
 
   const handleExerciseCreation = (e) => {
     e.preventDefault()
@@ -60,63 +63,65 @@ const CreateExercise = () => {
       id: uuidv4(),
       complete: false,
     }
-    mutationExerciseCreation.mutate(newExercise, {
+    mutateCreatedExercise(newExercise, {
       onSuccess: () => history.push('/home'),
     })
   }
 
+  if (isError) {
+    return <div>Something went wrong...${error}</div>
+  }
+
+  if (isSuccess) {
+    return <div>Exercise added!</div>
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
-    <>
-      {mutationExerciseCreation.isError && (
-        <div>Something went wrong...${mutationExerciseCreation.error}</div>
-      )}
-      {mutationExerciseCreation.isSuccess && <div>Exercise added!</div>}
-      {mutationExerciseCreation.isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <div className="card p-10 my-10 bg-gray-200 shadow-lg">
-          <form onSubmit={handleExerciseCreation}>
-            <div className="form-control">
-              <label className="label" htmlFor="title">
-                <span className="label-text">Title</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                onChange={handleChange}
-                defaultValue={exercise.title}
-                required
-                maxLength="15"
-                placeholder="Title"
-                className="input input-bordered"
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label" htmlFor="detail2">
-                <span className="label-text">Detail</span>
-              </label>
-              <textarea
-                cols="30"
-                rows="10"
-                name="detail"
-                onChange={handleChange}
-                defaultValue={exercise.detail}
-                required
-                placeholder="Detail"
-                className="textarea h-36 textarea-bordered resize-y"
-              />
-            </div>
-
-            <div className="my-5 grid grid-flow-row">
-              <button type="submit" className="btn btn-primary">
-                Add Exercise
-              </button>
-            </div>
-          </form>
+    <div className="card p-10 my-10 bg-gray-200 shadow-lg">
+      <form onSubmit={handleExerciseCreation}>
+        <div className="form-control">
+          <label className="label" htmlFor="title">
+            <span className="label-text">Title</span>
+          </label>
+          <input
+            type="text"
+            name="title"
+            onChange={handleChange}
+            defaultValue={exercise.title}
+            required
+            maxLength="15"
+            placeholder="Title"
+            className="input input-bordered"
+          />
         </div>
-      )}
-    </>
+
+        <div className="form-control">
+          <label className="label" htmlFor="detail2">
+            <span className="label-text">Detail</span>
+          </label>
+          <textarea
+            cols="30"
+            rows="10"
+            name="detail"
+            onChange={handleChange}
+            defaultValue={exercise.detail}
+            required
+            placeholder="Detail"
+            className="textarea h-36 textarea-bordered resize-y"
+          />
+        </div>
+
+        <div className="my-5 grid grid-flow-row">
+          <button type="submit" className="btn btn-primary">
+            Add Exercise
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 

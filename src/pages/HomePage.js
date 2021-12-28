@@ -22,22 +22,26 @@ const HomePage = () => {
     setCurrentFilter(filter)
   }
 
+  if (isError) {
+    return <div>Something went wrong...${error}</div>
+  }
+
+  if (isLoading) {
+    return <div>loading data ...</div>
+  }
+
+  if (isFetching) {
+    return <div>Refreshing...</div>
+  }
+
   return (
     <>
-      {isError && <div>Something went wrong...${error}</div>}
       <div>
-        {isLoading ? (
-          <div>loading data ...</div>
-        ) : (
-          <>
-            {isFetching && <div>Refreshing...</div>}
-            <BaseFilter
-              onUpdateFilterExercises={handleUpdateFilter}
-              current={currentFilter}
-            />
-            <ExercisesList exercises={dataExercises} />
-          </>
-        )}
+        <BaseFilter
+          onUpdateFilterExercises={handleUpdateFilter}
+          current={currentFilter}
+        />
+        <ExercisesList exercises={dataExercises} />
       </div>
       <ReactQueryDevtools initialIsOpen />
     </>

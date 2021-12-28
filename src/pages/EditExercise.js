@@ -23,7 +23,7 @@ const EditExercise = () => {
     isFetching,
   } = useFetchExercise(exerciseId)
 
-  const mutationExerciseUpdate = useMutation(
+  const { mutate: mutateEditedExercise } = useMutation(
     (newExercise) => editExercise(exerciseId, newExercise),
     {
       onSuccess: (dataNew) => {
@@ -66,60 +66,66 @@ const EditExercise = () => {
 
   const handleExerciseUpdation = (e) => {
     e.preventDefault()
-    mutationExerciseUpdate.mutate(exercise, {
+    mutateEditedExercise(exercise, {
       onSuccess: () => history.push('/home'),
     })
   }
 
+  if (isError) {
+    return <div>Something went wrong......${error}</div>
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (isFetching) {
+    return <div>Refreshing...</div>
+  }
+
   return (
     <>
-      {isError && <div>Something went wrong......${error}</div>}
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <div className="card p-10 my-10 bg-gray-200 shadow-lg">
-          {isFetching && <div>Refreshing...</div>}
-          <form onSubmit={handleExerciseUpdation}>
-            <div className="form-control">
-              <label className="label" htmlFor="title">
-                <span className="label-text">Title</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                onChange={handleChange}
-                defaultValue={exercise.title}
-                required
-                maxLength="15"
-                placeholder="Title"
-                className="input input-bordered"
-              />
-            </div>
+      <div className="card p-10 my-10 bg-gray-200 shadow-lg">
+        <form onSubmit={handleExerciseUpdation}>
+          <div className="form-control">
+            <label className="label" htmlFor="title">
+              <span className="label-text">Title</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              onChange={handleChange}
+              defaultValue={exercise.title}
+              required
+              maxLength="15"
+              placeholder="Title"
+              className="input input-bordered"
+            />
+          </div>
 
-            <div className="form-control">
-              <label className="label" htmlFor="detail2">
-                <span className="label-text">Detail</span>
-              </label>
-              <textarea
-                cols="30"
-                rows="10"
-                name="detail"
-                onChange={handleChange}
-                defaultValue={exercise.detail}
-                required
-                placeholder="Detail"
-                className="textarea h-24 textarea-bordered"
-              />
-            </div>
+          <div className="form-control">
+            <label className="label" htmlFor="detail2">
+              <span className="label-text">Detail</span>
+            </label>
+            <textarea
+              cols="30"
+              rows="10"
+              name="detail"
+              onChange={handleChange}
+              defaultValue={exercise.detail}
+              required
+              placeholder="Detail"
+              className="textarea h-24 textarea-bordered"
+            />
+          </div>
 
-            <div className="my-5 grid grid-flow-row">
-              <button type="submit" className="btn btn-primary">
-                Update Exercise
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+          <div className="my-5 grid grid-flow-row">
+            <button type="submit" className="btn btn-primary">
+              Update Exercise
+            </button>
+          </div>
+        </form>
+      </div>
       <ReactQueryDevtools initialIsOpen />
     </>
   )
