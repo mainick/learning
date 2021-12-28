@@ -90,7 +90,7 @@ const App = () => (
     <div className="container mx-auto">
       <NavBar />
       <Switch>
-        <Route path="/home" exact>
+        <Route path="/home" exact strict>
           <QueryErrorResetBoundary>
             {({ reset }) => (
               <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>

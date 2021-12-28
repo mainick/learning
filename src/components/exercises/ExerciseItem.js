@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Link, useHistory } from 'react-router-dom'
+import { NavLink, useHistory } from 'react-router-dom'
 import { useErrorHandler } from 'react-error-boundary'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-toastify'
@@ -111,12 +111,13 @@ const ExerciseItem = ({ exercise }) => {
         <h2 className="card-title">{exercise.title}</h2>
         <p className="break-all">{exercise.detail}</p>
         <div className="card-actions">
-          <Link
+          <NavLink
             to={`/exercises/${exercise.id}/edit`}
             className="btn btn-primary btn-sm"
+            title="Edit Exercise"
           >
             Edit
-          </Link>
+          </NavLink>
           <button
             type="button"
             className={`btn btn-error btn-sm ${isLoadingDelete && 'loading'}`}
