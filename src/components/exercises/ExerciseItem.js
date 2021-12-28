@@ -7,6 +7,7 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { toggleExercise, deleteExercise } from '../../services/ExerciseApi'
+import exerciseKeys from '../../utils/ReactQueryKeyFactories'
 
 const SwalDeleteExercise = withReactContent(Swal)
 
@@ -34,8 +35,8 @@ const ExerciseItem = ({ exercise }) => {
             'Exercise deleted correctly',
             'success'
           )
-          queryClient.invalidateQueries('exercisesList', { exact: true })
-          queryClient.invalidateQueries(['exercise', deletedId], {
+          queryClient.invalidateQueries(exerciseKeys.lists())
+          queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
             exact: true,
           })
         }
@@ -84,8 +85,8 @@ const ExerciseItem = ({ exercise }) => {
           type: toast.TYPE.SUCCESS,
           toastId: `exercise_${data.id}`,
         })
-        queryClient.invalidateQueries('exercisesList', { exact: true })
-        queryClient.invalidateQueries(['exercise', data.id], {
+        queryClient.invalidateQueries(exerciseKeys.lists())
+        queryClient.invalidateQueries(exerciseKeys.detail(data.id), {
           exact: true,
         })
       }

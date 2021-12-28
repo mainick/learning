@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { toast } from 'react-toastify'
 import useFetchExercise from '../hooks/useFetchExercise'
 import { editExercise } from '../services/ExerciseApi'
+import exerciseKeys from '../utils/ReactQueryKeyFactories'
 
 const EditExercise = () => {
   const [exercise, setExercise] = useState({})
@@ -34,8 +35,10 @@ const EditExercise = () => {
             type: toast.TYPE.SUCCESS,
             toastId: `exercise_${data.id}`,
           })
-          queryClient.invalidateQueries('exercisesList', { exact: true })
-          queryClient.invalidateQueries(['exercise', data.id], { exact: true })
+          queryClient.invalidateQueries(exerciseKeys.lists())
+          queryClient.invalidateQueries(exerciseKeys.detail(data.id), {
+            exact: true,
+          })
         }
       },
       onError: (exc) => {

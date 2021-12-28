@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { toast } from 'react-toastify'
 import { createExercise } from '../services/ExerciseApi'
+import exerciseKeys from '../utils/ReactQueryKeyFactories'
 import 'react-toastify/dist/ReactToastify.min.css'
 
 const initialExercise = {
@@ -36,7 +37,7 @@ const CreateExercise = () => {
             type: toast.TYPE.SUCCESS,
             toastId: `exercise_${data.id}`,
           })
-          queryClient.invalidateQueries('exercisesList', { exact: true })
+          queryClient.invalidateQueries(exerciseKeys.lists())
         }
       },
       onError: (error) => {

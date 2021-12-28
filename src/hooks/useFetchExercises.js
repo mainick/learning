@@ -1,12 +1,13 @@
 import { useQuery } from 'react-query'
 import { getExercises } from '../services/ExerciseApi'
+import exerciseKeys from '../utils/ReactQueryKeyFactories'
 
-const useFetchExercises = () => {
+const useFetchExercises = (stateFilter) => {
   const { isLoading, isError, data, error, isFetching } = useQuery(
-    'exercisesList',
-    async ({ signal }) => getExercises(signal),
+    exerciseKeys.list(stateFilter),
+    async () => getExercises(stateFilter),
     {
-      retry: 0,
+      retry: false,
       useErrorBoundary: true,
     }
   )

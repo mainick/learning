@@ -3,9 +3,11 @@ import axiosClient from './AxiosService'
 const responseOK = (response) =>
   response.status >= 200 && response.status <= 299
 
-export async function getExercises() {
-  const url = '/exercises'
+export async function getExercises(stateFilter = '') {
+  let url = '/exercises'
   try {
+    if (stateFilter === 'completed') url += '?complete=true'
+    else if (stateFilter === 'pending') url += '?complete=false'
     const response = await axiosClient.get(url)
     if (!responseOK(response)) throw new Error(`Network response was not ok`)
     return response.data || []
@@ -18,7 +20,7 @@ export async function getExercises() {
   }
 }
 
-export async function getExerciseById(signal, id) {
+export async function getExerciseById(id) {
   const url = `/exercises/${id}`
   try {
     const response = await axiosClient.get(url)

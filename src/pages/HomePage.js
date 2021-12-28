@@ -1,12 +1,9 @@
 import React from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import ExercisesList from '../components/exercises/ExercisesList'
 import BaseFilter from '../components/exercises/BaseFilter'
-import {
-  exerciseTypeFilterState,
-  filteredExercisesList,
-} from '../store/ExerciseStore'
+import { exerciseTypeFilterState } from '../store/ExerciseStore'
 import useFetchExercises from '../hooks/useFetchExercises'
 
 const HomePage = () => {
@@ -19,8 +16,7 @@ const HomePage = () => {
     data: dataExercises,
     error,
     isFetching,
-  } = useFetchExercises()
-  const filteredExercises = useRecoilValue(filteredExercisesList(dataExercises))
+  } = useFetchExercises(currentFilter)
 
   const handleUpdateFilter = (filter) => {
     setCurrentFilter(filter)
@@ -39,7 +35,7 @@ const HomePage = () => {
               onUpdateFilterExercises={handleUpdateFilter}
               current={currentFilter}
             />
-            <ExercisesList exercises={filteredExercises} />
+            <ExercisesList exercises={dataExercises} />
           </>
         )}
       </div>
