@@ -13,6 +13,7 @@ const useFetchExercise = (exerciseId) => {
       retry: 3,
       useErrorBoundary: (errorResp) => errorResp.response?.status >= 500,
       placeholderData: () => {
+        // data not real and not valid, used before will get the real data
         const stateQueryExercisesAll = queryClient.getQueryState(
           exerciseKeys.list('all')
         )
@@ -22,7 +23,7 @@ const useFetchExercise = (exerciseId) => {
         ) {
           // cached for half a minute
           const found = stateQueryExercisesAll.data.find(
-            (item) => item.id === exerciseId
+            (item) => item.id.toString() === exerciseId
           )
           return found ?? undefined
         }

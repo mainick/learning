@@ -13,6 +13,7 @@ const useFetchExercises = (stateFilter) => {
       retry: false,
       useErrorBoundary: true,
       initialData: () => {
+        // data valid and put into cache
         const stateQueryExercisesAll = queryClient.getQueryState(
           exerciseKeys.list('all')
         )
