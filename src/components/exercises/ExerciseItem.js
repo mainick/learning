@@ -16,12 +16,13 @@ const ExerciseItem = ({ exercise }) => {
   const history = useHistory()
   const queryClient = useQueryClient()
 
-  const mutationExerciseDeletion = useMutation(
-    (exerciseId) => deleteExercise(exerciseId),
-    {
-      onSuccess: (isDeleted, deletedId) => {
-        if (isDeleted) {
-          /*
+  const {
+    mutate: mutateDeletedExercise,
+    isLoading: isLoadingDelete,
+  } = useMutation((exerciseId) => deleteExercise(exerciseId), {
+    onSuccess: (isDeleted, deletedId) => {
+      if (isDeleted) {
+        /*
           toast(`Exercise deleted correctly`, {
             position: toast.POSITION.TOP_RIGHT,
             theme: 'colored',
@@ -30,31 +31,30 @@ const ExerciseItem = ({ exercise }) => {
             toastId: `exercise_${deletedId}`,
           })
           */
-          SwalDeleteExercise.fire(
-            'Deleted!',
-            'Exercise deleted correctly',
-            'success'
-          )
+        SwalDeleteExercise.fire(
+          'Deleted!',
+          'Exercise deleted correctly',
+          'success'
+        )
 
-          // invalid query data into cache
-          queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
-            exact: true,
-          })
-          return queryClient.invalidateQueries(exerciseKeys.lists())
-        }
-        return null
-      },
-      onError: (exc) => {
-        toast(exc, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: 'colored',
-          pauseOnFocusLoss: true,
-          type: toast.TYPE.ERROR,
+        // invalid query data into cache
+        queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
+          exact: true,
         })
-        handleError(exc)
-      },
-    }
-  )
+        return queryClient.invalidateQueries(exerciseKeys.lists())
+      }
+      return null
+    },
+    onError: (exc) => {
+      toast(exc, {
+        position: toast.POSITION.TOP_RIGHT,
+        theme: 'colored',
+        pauseOnFocusLoss: true,
+        type: toast.TYPE.ERROR,
+      })
+      handleError(exc)
+    },
+  })
 
   const performExerciseDeletion = () => {
     SwalDeleteExercise.fire({
@@ -69,7 +69,7 @@ const ExerciseItem = ({ exercise }) => {
       buttonsStyling: false,
     }).then((result) => {
       if (result.isConfirmed) {
-        mutationExerciseDeletion.mutate(exercise.id, {
+        mutateDeletedExercise(exercise.id, {
           onSuccess: () => {
             history.push('/home')
           },
@@ -78,7 +78,10 @@ const ExerciseItem = ({ exercise }) => {
     })
   }
 
-  const mutationExerciseToggle = useMutation(() => toggleExercise(exercise), {
+  const {
+    mutate: mutateToggledExercise,
+    isLoading: isLoadingToggleExercise,
+  } = useMutation(() => toggleExercise(exercise), {
     onSuccess: (dataNew) => {
       if (dataNew) {
         toast(`Exercise ${dataNew.id}  toggled correctly`, {
@@ -126,9 +129,7 @@ const ExerciseItem = ({ exercise }) => {
           </Link>
           <button
             type="button"
-            className={`btn btn-error btn-sm ${
-              mutationExerciseDeletion.isLoading && 'loading'
-            }`}
+            className={`btn btn-error btn-sm ${isLoadingDelete && 'loading'}`}
             onClick={performExerciseDeletion}
           >
             Delete
@@ -136,9 +137,9 @@ const ExerciseItem = ({ exercise }) => {
           <button
             type="button"
             className={`btn btn-secondary btn-sm ${
-              mutationExerciseToggle.isLoading && 'loading'
+              isLoadingToggleExercise && 'loading'
             }`}
-            onClick={() => mutationExerciseToggle.mutate(exercise)}
+            onClick={() => mutateToggledExercise(exercise)}
           >
             Toggle
           </button>
