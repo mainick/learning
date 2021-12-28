@@ -34,25 +34,9 @@ const CreateExercise = () => {
   } = useMutation((newExercise) => createExercise(newExercise), {
     onSuccess: (dataNew) => {
       if (dataNew) {
-        toast(`Exercise ${dataNew.id} created correctly`, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: 'colored',
-          pauseOnFocusLoss: true,
-          type: toast.TYPE.SUCCESS,
-          toastId: `exercise_${dataNew.id}`,
-        })
         return queryClient.invalidateQueries(exerciseKeys.lists())
       }
       return null
-    },
-    onError: (exc) => {
-      toast(exc, {
-        position: toast.POSITION.TOP_RIGHT,
-        theme: 'colored',
-        pauseOnFocusLoss: true,
-        type: toast.TYPE.ERROR,
-      })
-      handleError(exc)
     },
   })
 
@@ -65,7 +49,25 @@ const CreateExercise = () => {
       complete: false,
     }
     mutateCreatedExercise(newExercise, {
-      onSuccess: () => history.push('/home'),
+      onSuccess: (dataNew) => {
+        toast(`Exercise ${dataNew.id} created correctly`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.SUCCESS,
+          toastId: `exercise_${dataNew.id}`,
+        })
+        history.push('/home')
+      },
+      onError: (exc) => {
+        toast(exc.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.ERROR,
+        })
+        handleError(exc)
+      },
     })
   }
 

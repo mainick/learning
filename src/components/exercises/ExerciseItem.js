@@ -22,21 +22,6 @@ const ExerciseItem = ({ exercise }) => {
   } = useMutation((exerciseId) => deleteExercise(exerciseId), {
     onSuccess: (isDeleted, deletedId) => {
       if (isDeleted) {
-        /*
-          toast(`Exercise deleted correctly`, {
-            position: toast.POSITION.TOP_RIGHT,
-            theme: 'colored',
-            pauseOnFocusLoss: true,
-            type: toast.TYPE.SUCCESS,
-            toastId: `exercise_${deletedId}`,
-          })
-          */
-        SwalDeleteExercise.fire(
-          'Deleted!',
-          'Exercise deleted correctly',
-          'success'
-        )
-
         // invalid query data into cache
         queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
           exact: true,
@@ -44,15 +29,6 @@ const ExerciseItem = ({ exercise }) => {
         return queryClient.invalidateQueries(exerciseKeys.lists())
       }
       return null
-    },
-    onError: (exc) => {
-      toast(exc, {
-        position: toast.POSITION.TOP_RIGHT,
-        theme: 'colored',
-        pauseOnFocusLoss: true,
-        type: toast.TYPE.ERROR,
-      })
-      handleError(exc)
     },
   })
 
@@ -71,7 +47,21 @@ const ExerciseItem = ({ exercise }) => {
       if (result.isConfirmed) {
         mutateDeletedExercise(exercise.id, {
           onSuccess: () => {
+            SwalDeleteExercise.fire(
+              'Deleted!',
+              'Exercise deleted correctly',
+              'success'
+            )
             history.push('/home')
+          },
+          onError: (exc) => {
+            toast(exc.message, {
+              position: toast.POSITION.TOP_RIGHT,
+              theme: 'colored',
+              pauseOnFocusLoss: true,
+              type: toast.TYPE.ERROR,
+            })
+            handleError(exc)
           },
         })
       }

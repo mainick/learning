@@ -28,29 +28,12 @@ const EditExercise = () => {
     {
       onSuccess: (dataNew) => {
         if (dataNew) {
-          toast(`Exercise updated correctly`, {
-            position: toast.POSITION.TOP_RIGHT,
-            theme: 'colored',
-            pauseOnFocusLoss: true,
-            type: toast.TYPE.SUCCESS,
-            toastId: `exercise_${dataNew.id}`,
-          })
-
           // update query data into cache
           queryClient.setQueriesData(exerciseKeys.lists(), (previous) =>
             previous.map((item) => (item.id === dataNew.id ? dataNew : item))
           )
           queryClient.setQueryData(exerciseKeys.detail(dataNew.id), dataNew)
         }
-      },
-      onError: (exc) => {
-        toast(exc, {
-          position: toast.POSITION.TOP_RIGHT,
-          theme: 'colored',
-          pauseOnFocusLoss: true,
-          type: toast.TYPE.ERROR,
-        })
-        handleError(exc)
       },
     }
   )
@@ -67,7 +50,25 @@ const EditExercise = () => {
   const handleExerciseUpdation = (e) => {
     e.preventDefault()
     mutateEditedExercise(exercise, {
-      onSuccess: () => history.push('/home'),
+      onSuccess: (dataNew) => {
+        toast(`Exercise updated correctly`, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.SUCCESS,
+          toastId: `exercise_${dataNew.id}`,
+        })
+        history.push('/home')
+      },
+      onError: (exc) => {
+        toast(exc.message, {
+          position: toast.POSITION.TOP_RIGHT,
+          theme: 'colored',
+          pauseOnFocusLoss: true,
+          type: toast.TYPE.ERROR,
+        })
+        handleError(exc)
+      },
     })
   }
 

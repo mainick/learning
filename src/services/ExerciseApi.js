@@ -54,7 +54,8 @@ export async function editExercise(id, exercise) {
   const url = `/exercises/${id}`
   try {
     const response = await axiosClient.patch(url, JSON.stringify(exercise))
-    return responseOK(response)
+    if (!responseOK(response)) throw new Error(`Network response was not ok`)
+    return response.data || {}
   } catch (e) {
     throw new Error(
       `Error update exercise (${axiosClient.defaults.baseURL + url}: ${
