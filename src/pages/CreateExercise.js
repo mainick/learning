@@ -41,7 +41,7 @@ const CreateExercise = () => {
           type: toast.TYPE.SUCCESS,
           toastId: `exercise_${dataNew.id}`,
         })
-        queryClient.invalidateQueries(exerciseKeys.lists())
+        return queryClient.invalidateQueries(exerciseKeys.lists())
       }
     },
     onError: (exc) => {

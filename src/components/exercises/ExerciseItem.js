@@ -37,10 +37,10 @@ const ExerciseItem = ({ exercise }) => {
           )
 
           // invalid query data into cache
-          queryClient.invalidateQueries(exerciseKeys.lists())
           queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
             exact: true,
           })
+          return queryClient.invalidateQueries(exerciseKeys.lists())
         }
       },
       onError: (exc) => {
@@ -100,7 +100,7 @@ const ExerciseItem = ({ exercise }) => {
         queryClient.invalidateQueries(exerciseKeys.list('completed'), {
           exact: true,
         })
-        queryClient.invalidateQueries(exerciseKeys.list('pending'), {
+        return queryClient.invalidateQueries(exerciseKeys.list('pending'), {
           exact: true,
         })
       }
