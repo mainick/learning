@@ -26,19 +26,21 @@ const EditExercise = () => {
   const mutationExerciseUpdate = useMutation(
     (newExercise) => editExercise(exerciseId, newExercise),
     {
-      onSuccess: (status, data) => {
-        if (status) {
+      onSuccess: (dataNew) => {
+        if (dataNew) {
           toast(`Exercise updated correctly`, {
             position: toast.POSITION.TOP_RIGHT,
             theme: 'colored',
             pauseOnFocusLoss: true,
             type: toast.TYPE.SUCCESS,
-            toastId: `exercise_${data.id}`,
+            toastId: `exercise_${dataNew.id}`,
           })
-          queryClient.invalidateQueries(exerciseKeys.lists())
-          queryClient.invalidateQueries(exerciseKeys.detail(data.id), {
-            exact: true,
-          })
+
+          // update query data into cache
+          queryClient.setQueriesData(exerciseKeys.lists(), (previous) =>
+            previous.map((item) => (item.id === dataNew.id ? dataNew : item))
+          )
+          queryClient.setQueryData(exerciseKeys.detail(dataNew.id), dataNew)
         }
       },
       onError: (exc) => {

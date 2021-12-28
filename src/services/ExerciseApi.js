@@ -39,7 +39,8 @@ export async function createExercise(exercise) {
   const url = '/exercises/'
   try {
     const response = await axiosClient.post(url, JSON.stringify(exercise))
-    return responseOK(response)
+    if (!responseOK(response)) throw new Error(`Network response was not ok`)
+    return response.data || {}
   } catch (e) {
     throw new Error(
       `Error create exercise (${axiosClient.defaults.baseURL + url}: ${
@@ -70,7 +71,8 @@ export async function toggleExercise(exercise) {
       url,
       JSON.stringify({ ...exercise, complete: !exercise.complete })
     )
-    return responseOK(response)
+    if (!responseOK(response)) throw new Error(`Network response was not ok`)
+    return response.data || {}
   } catch (e) {
     throw new Error(
       `Error toggle exercise (${axiosClient.defaults.baseURL + url}): ${

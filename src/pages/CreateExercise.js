@@ -28,14 +28,14 @@ const CreateExercise = () => {
   const mutationExerciseCreation = useMutation(
     (newExercise) => createExercise(newExercise),
     {
-      onSuccess: (status, data) => {
-        if (status) {
-          toast(`Exercise ${data.id} created correctly`, {
+      onSuccess: (dataNew) => {
+        if (dataNew) {
+          toast(`Exercise ${dataNew.id} created correctly`, {
             position: toast.POSITION.TOP_RIGHT,
             theme: 'colored',
             pauseOnFocusLoss: true,
             type: toast.TYPE.SUCCESS,
-            toastId: `exercise_${data.id}`,
+            toastId: `exercise_${dataNew.id}`,
           })
           queryClient.invalidateQueries(exerciseKeys.lists())
         }

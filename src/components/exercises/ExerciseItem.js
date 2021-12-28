@@ -19,8 +19,8 @@ const ExerciseItem = ({ exercise }) => {
   const mutationExerciseDeletion = useMutation(
     (exerciseId) => deleteExercise(exerciseId),
     {
-      onSuccess: (status, deletedId) => {
-        if (status) {
+      onSuccess: (isDeleted, deletedId) => {
+        if (isDeleted) {
           /*
           toast(`Exercise deleted correctly`, {
             position: toast.POSITION.TOP_RIGHT,
@@ -35,6 +35,8 @@ const ExerciseItem = ({ exercise }) => {
             'Exercise deleted correctly',
             'success'
           )
+
+          // invalid query data into cache
           queryClient.invalidateQueries(exerciseKeys.lists())
           queryClient.invalidateQueries(exerciseKeys.detail(deletedId), {
             exact: true,
@@ -76,17 +78,29 @@ const ExerciseItem = ({ exercise }) => {
   }
 
   const mutationExerciseToggle = useMutation(() => toggleExercise(exercise), {
-    onSuccess: (status, data) => {
-      if (status) {
-        toast(`Exercise ${data.id}  toggled correctly`, {
+    onSuccess: (dataNew) => {
+      if (dataNew) {
+        toast(`Exercise ${dataNew.id}  toggled correctly`, {
           position: toast.POSITION.TOP_RIGHT,
           theme: 'colored',
           pauseOnFocusLoss: true,
           type: toast.TYPE.SUCCESS,
-          toastId: `exercise_${data.id}`,
+          toastId: `exercise_${dataNew.id}`,
         })
-        queryClient.invalidateQueries(exerciseKeys.lists())
-        queryClient.invalidateQueries(exerciseKeys.detail(data.id), {
+
+        // update query data into cache detail
+        queryClient.setQueryData(exerciseKeys.detail(dataNew.id), dataNew)
+
+        // update query data into cache list all
+        queryClient.setQueryData(exerciseKeys.list('all'), (previous) =>
+          previous.map((item) => (item.id === dataNew.id ? dataNew : item))
+        )
+
+        // invalid query data into cache list filtered
+        queryClient.invalidateQueries(exerciseKeys.list('completed'), {
+          exact: true,
+        })
+        queryClient.invalidateQueries(exerciseKeys.list('pending'), {
           exact: true,
         })
       }
