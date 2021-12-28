@@ -102,7 +102,15 @@ const App = () => (
           </QueryErrorResetBoundary>
         </Route>
         <Route path="/create-exercise" exact>
-          <CreateExercise />
+          <QueryErrorResetBoundary>
+            {({ reset }) => (
+              <ErrorBoundary FallbackComponent={ErrorFallback} onReset={reset}>
+                <Suspense fallback={<SkeletonListExercises />}>
+                  <CreateExercise />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+          </QueryErrorResetBoundary>
         </Route>
         <Route path="/exercises/:id/edit" exact>
           <QueryErrorResetBoundary>
