@@ -43,6 +43,7 @@ const CreateExercise = () => {
         })
         return queryClient.invalidateQueries(exerciseKeys.lists())
       }
+      return null
     },
     onError: (exc) => {
       toast(exc, {

@@ -42,6 +42,7 @@ const ExerciseItem = ({ exercise }) => {
           })
           return queryClient.invalidateQueries(exerciseKeys.lists())
         }
+        return null
       },
       onError: (exc) => {
         toast(exc, {
@@ -104,6 +105,7 @@ const ExerciseItem = ({ exercise }) => {
           exact: true,
         })
       }
+      return null
     },
     onError: (exc) => {
       handleError(exc)
